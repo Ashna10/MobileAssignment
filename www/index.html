@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>Sober O'clock</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="js/jquery.mobile-1.4.5.css">
+  <link rel="stylesheet" href="Style.css">
+
+  <!-- Include jQuery Mobile stylesheets -->
+
+  <meta name="viewport" content="width=device-width" , initial-scale="1.0" />
+
+  <!-- Using leaflet : maps -->
+  <link rel="stylesheet" href="leaflet/leaflet.css" />
+  <script src="leaflet/leaflet.js"></script>
+
+
+
+  <!-- Include the jQuery Mobile library -->
+
+  <script src="js/jquery.js"></script>
+  <script src="js/jquery.mobile-1.4.5.js"></script>
+
+
+
+  <!-- Script for DB -->
+  <script type="text/javascript">
+  if (typeof(Storage) !== undefined) {
+    localStorage.setItem("name", "palveena");
+    localStorage.setItem("work", "utm");
+    var myName = localStorage.getItem("name");
+
+  } else {
+    alert("but why?");
+  }
+
+  db = window.openDatabase("alcoholDB", "1.0", "Simple Demo", 2 * 1024 * 1024);
+  db.transaction(createDB, errorCB, successCB);
+
+  function createDB(tx) {
+    tx.executeSql('CREATE TABLE IF NOT EXISTS alcohol(id INT, drink_name TEXT, date_taken TEXT, category TEXT)');
+  }
+
+  function errorCB(err) {
+    alert("SQL Error: " + err.code);
+  }
+
+  function successCB() {
+    // alert("Database & Table Created");
+  }
+
+  // <------------------>
+  function submitForm() {
+    db.transaction(insertDB, errorCB);
+    return false;
+  }
+
+  function insertDB(tx) {
+    var drink_name_c = $("[name='drink_name']").val();
+    var date_taken_c = $("[name='date_taken']").val();
+    var category_c = $("[name='category']").val();
+    var sql = 'INSERT INTO alcohol (drink_name, date_taken, category) VALUES (?,?,?)';
+    tx.executeSql(sql, [drink_name_c, date_taken_c, category_c], successQueryDB, errorCB);
+  }
+
+  function successQueryDB(tx) {
+    // alert("Insert Successful");
+    tx.executeSql('SELECT * FROM alcohol', [], renderListCB, errorCB)
+  }
+
+  function renderListCB(tx, results) {
+    var htmlString = ' ';
+    var len = results.rows.length;
+    for (var i = 0; i < len; i++) {
+      htmlString += '<li>'+"Date Taken: "+ results.rows.item(i).date_taken +'<br>'+"Drink Name: "+ results.rows.item(i).drink_name +'<br>' +"Category: "+ results.rows.item(i).category +'</li>';
+    }
+    $('#resultList').html(htmlString);
+    $('#resultList').listview('refresh');
+  }
+
+  function submitForm() {
+    db.transaction(insertDB, errorCB);
+    $.mobile.changePage("#pagetwo", {
+      reverse: false,
+      transition: "slide"
+    });
+    return false;
+  }
+
+  //<------------------->
+  document.addEventListener("deviceready", onDeviceReady, false);
+  var db;
+
+  function onDeviceReady() {
+
+    // alert("device ready");
+
+  }
+
+</script>
+
+
+
+</head>
+
+<body onLoad="javascript:init();">
+
+
+  <!-- Page 1 : HOME-->
+  <div data-role="page" id="HomePage" data-theme="a">
+
+    <!-- Header -->
+    <div data-role="header" id="heading">
+
+      <h1>Sober O'clock</h1>
+
+      <a href="#MenuBtn" data-icon="bars" data-iconpos="notext" data-theme="b" data-incline="true" id="btnMenu">Menu</a>
+
+      <div data-role="panel" data-display="overlay" data-theme="b" id="MenuBtn">
+        <ul data-role="listview" data-inset="false">
+          <li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+          <li><a href="#HomePage">Home</a></li>
+          <li><a href="#TrackerPage">Drink Tracker</a></li>
+          <li><a href="#MapPage">Rehabilitation Map</a></li>
+          <li><a href="#FactsPage">Facts</a></li>
+          <li><a href="#HelplinePage">Helpline</a></li>
+          <li><a href="#FAQPage">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <img src="Img/TeenAlc.jpg" alt="Teen Alcohol" class="PageBanner">
+
+    <!-- Content -->
+    <div role="main" class="ui-content">
+      <h2 class="xy">Teenage Alcoholism</h2>
+
+      <p class="y">
+        Teens that begin drinking at an early age put themselves at risk for many immediate consequences. Injury, assault, and vehicular accidents are just a few of the potential dangers of consuming alcohol. In addition, teens consuming alcohol are more
+        likely to engage in risky sexual behaviors, resulting in a potential unplanned pregnancy or a sexually transmitted disease. Parents likely worry most about these types of consequences associated with alcohol consumption. However, in some cases,
+        the alcohol consumption itself can result in a life-threatening condition
+      </p>
+
+      <h2 class="xy">Dangers And Fatalities Short Film</h2>
+      <p class="y">
+        Alcohol is often involved in the top three causes of death among teens: accidents, suicide and homicide.
+        In addition, teenaged males who drove with an illegal level of blood alcohol content were more likely to die when compared with sober drivers of the same age.
+        There are additional concerns with acute alcohol ingestion, such as respiratory depression, a condition that can be life-threatening.
+        Sufferers can also suffer from diarrhea, nausea and vomiting, as well as hepatitis and pancreatitis.
+      </p>
+
+
+      <h2 class="ftitle">Underage Drinking Awareness Short Film</h2>
+      <!-- Using Youtube API -->
+      <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+      <div id="player" style="width:100%;"></div>
+
+    </div>
+
+
+    <!-- Footer -->
+    <div data-role="footer">
+      <h2 class="fcopy"><em>Copyright &copy; 2019 All Rights Reserved</em></h2>
+    </div>
+
+  </div>
+  <!-- /End of Page 1-->
+
+
+
+
+
+  <!-- Page 2: Drink Tracker Page -->
+
+  <div data-role="page" id="TrackerPage" data-theme="a">
+
+    <div data-role="header" id="heading">
+
+      <h1>Sober O'clock</h1>
+
+      <a href="#MenuBtn" data-icon="bars" data-iconpos="notext" data-theme="b" data-incline="true" id="btnMenu">Menu</a>
+
+      <div data-role="panel" data-display="overlay" data-theme="b" id="MenuBtn">
+        <ul data-role="listview" data-inset="false">
+          <li>DRINK TRACKER</li>
+          <li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+          <li><a href="#HomePage">Home</a></li>
+          <li><a href="#TrackerPage">Drink Tracker</a></li>
+          <li><a href="#MapPage">Rehabilitation Map</a></li>
+          <li><a href="#FactsPage">Facts</a></li>
+          <li><a href="#HelplinePage">Helpline</a></li>
+          <li><a href="#FAQPage">FAQ</a></li>
+        </ul>
+
+      </div>
+
+
+    </div>
+
+    <div data-role="main" class="ui-content">
+
+      <h3 class="xy">Use this Drink Tracker to track your alcohol consumption and know about your progress.</h3>
+
+      <form method="post" onSubmit="return submitForm()">
+        <label class="ui-accessible">Drink Name: </label><input name="drink_name" type="text" placeholder="Drink name" data-clear-btn="true" />
+        <label class="ui-accessible">Date Taken:</label><input name="date_taken" type="date" id="date_taken" placeholder="Select date" />
+        <fieldset class="ui-field-contain">
+          <label for="category">Category</label>
+          <select name="category" id="category">
+            <option value="Champagne">Champagne</option>
+            <option value="Wine">Wine</option>
+            <option value="Beer">Beer</option>
+            <option value="Rum">Rum</option>
+          </select>
+        </fieldset>
+
+        <hr>
+
+        <input style="background-color: red;" type="submit" value="Save & View History" />
+
+
+      </form>
+
+    </div>
+
+    <!-- Footer -->
+    <div data-role="footer" data-position="fixed">
+      <h2 class="fcopy"><em>Copyright &copy; 2019 All Rights Reserved</em></h2>
+    </div>
+
+
+  </div>
+
+  <!-- /End of page 2 -->
+
+  <!-- Drink Tracker List Page -->
+
+
+  <div data-role="page" id="pagetwo">
+    <div data-role="header">
+      <h1>Consumption</h1>
+    </div>
+
+    <div data-role="main" class="ui-content">
+
+      <div id="output">
+        <ul data-role="listview" id="resultList"></ul>
+      </div>
+
+    </div>
+
+    <div data-role="footer" data-position="fixed">
+      <h2 class="fcopy"><em>Copyright &copy; 2019 All Rights Reserved</em></h2>
+    </div>
+  </div>
+
+
+
+
+  <!-- Page 3: Rehabilitation Map -->
+
+  <div data-role="page" id="MapPage" data-theme="b">
+
+    <div data-role="header" id="heading">
+
+      <h1>Sober O'clock</h1>
+
+      <a href="#MenuBtn" data-icon="bars" data-iconpos="notext" data-theme="b" data-incline="true" id="btnMenu">Menu</a>
+
+      <div data-role="panel" data-display="overlay" data-theme="b" id="MenuBtn">
+        <ul data-role="listview" data-inset="false">
+          <li>REHABILITATION CENTRES</li>
+          <li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+          <li><a href="#HomePage">Home</a></li>
+          <li><a href="#TrackerPage">Drink Tracker</a></li>
+          <li><a href="#MapPage">Rehabilitation Map</a></li>
+          <li><a href="#FactsPage">Facts</a></li>
+          <li><a href="#HelplinePage">Helpline</a></li>
+          <li><a href="#FAQPage">FAQ</a></li>
+        </ul>
+
+      </div>
+
+
+    </div>
+
+    <div role="main" class="ui-content">
+      <div id="mapid" style="width: 100%; height: 600px; margin: auto;"></div>
+    </div>
+
+
+    <!-- Footer -->
+    <div data-role="footer" data-position="fixed">
+      <h2 class="fcopy"><em>Copyright &copy; 2019 All Rights Reserved</em></h2>
+    </div>
+
+  </div>
+
+  <!-- /End of page 3 -->
+
+  <!-- Page 4: Facts Page -->
+
+  <div data-role="page" id="FactsPage" data-theme="a">
+
+    <div data-role="header" id="heading">
+
+      <h1>Sober O'clock</h1>
+
+      <a href="#MenuBtn" data-icon="bars" data-iconpos="notext" data-theme="b" data-incline="true" id="btnMenu">Menu</a>
+
+
+      <div data-role="panel" data-display="overlay" data-theme="b" id="MenuBtn">
+        <ul data-role="listview" data-inset="false">
+          <li>FACTS</li>
+          <li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+          <li><a href="#HomePage">Home</a></li>
+          <li><a href="#TrackerPage">Drink Tracker</a></li>
+          <li><a href="#MapPage">Rehabilitation Map</a></li>
+          <li><a href="#FactsPage">Facts</a></li>
+          <li><a href="#HelplinePage">Helpline</a></li>
+          <li><a href="#FAQPage">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <img src="Img/Underage.jpg" alt="Underagedrinking" class="PageBanner">
+
+    <div role="main" class="ui-content">
+
+      <h2 class="xy">Facts</h2>
+      <h4 class="ftitle">1. So many youngsters drink</h4>
+      <p class="y">
+        Young people use more alcohol than tobacco or drugs that are illegal. Over 70 percent of teens had at least one drink by the age of 18.
+      </p>
+
+      <h4 class="ftitle">2. Teens drink more than adults</h4>
+      <p class="y">
+
+        On average, on a single occasion, young people have about 5 drinks. This is called binge drinking, a very dangerous drinking method that can lead to severe health issues and even death.
+
+      </p>
+
+      <h4 class="ftitle">3. Early drinking can cause later alcohol problems</h4>
+      <p class="y">
+
+        Statistics have shown that there are signs of alcohol dependence among 40 percent of adults who started drinking before age 15. That rate is four times higher than that of adults who have not been drinking until the age of 21.
+
+      </p>
+
+      <h4 class="ftitle">4. For young people, alcohol may have a special appeal</h4>
+      <p class="y">
+
+        The teen years are a time of adventure, challenges, and taking risks.
+        Alcohol is often one of the risks that young people
+        take. But most people are not aware of how alcohol affects the body and behavior of a teen. They don’t realize that alcohol can affect young people
+        in different ways compared to adults.
+
+      </p>
+
+
+
+    </div>
+
+    <div data-role="footer">
+      <h2 class="fcopy"><em>Copyright &copy; 2019 All Rights Reserved</em></h2>
+    </div>
+
+  </div>
+
+  <!-- Page 5: Advice Page -->
+
+  <div data-role="page" id="HelplinePage" data-theme="a">
+
+    <div data-role="header" id="heading">
+
+      <h1>Sober O'clock</h1>
+
+      <a href="#MenuBtn" data-icon="bars" data-iconpos="notext" data-theme="b" data-incline="true" id="btnMenu">Menu</a>
+
+
+      <div data-role="panel" data-display="overlay" data-theme="b" id="MenuBtn">
+        <ul data-role="listview" data-inset="false">
+          <li>HELPLINE</li>
+          <li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+          <li><a href="#HomePage">Home</a></li>
+          <li><a href="#TrackerPage">Drink Tracker</a></li>
+          <li><a href="#MapPage">Rehabilitation Map</a></li>
+          <li><a href="#FactsPage">Facts</a></li>
+          <li><a href="#HelplinePage">Helpline</a></li>
+          <li><a href="#FAQPage">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+    <img src="Img/listing-banner.jpg" alt="Underagedrinking" class="PageBanner">
+
+    <div role="main" class="ui-content">
+      <h2 class="xy">What are Rehabilitation Centers</h2>
+      <p class="y">Alcohol addiction helplines exist specifically to provide free help for alcohol addiction. While different organizations have different overall goals, the primary goal for each is to offer the help the person is seeking.
+        The focus of our alcohol helplines is to better understand the specific situation you are faced with, offering treatment programs such as detoxification and rehabilitation, but to suggest any course of action, the first step is understanding.</p>
+
+        <p class="y">Alcohol rehab is often the only way that an individual who’s struggling with addiction can get help.
+          There are rehab centers all over the country that offer individualized programs to treat alcoholism, regardless of how long the condition has been present.
+          Alcohol treatment programs take many factors into consideration, including the person’s age and gender, and the extent and length of the addiction.
+          Many alcohol rehab centers also offer various aftercare options and recommendations to help clients maintain their sobriety.</p>
+
+          <h2 class="xy">Rehabilitation Centers</h2>
+          <table>
+            <tr class="trow" onclick="window.open('tel:5485 6999');">
+              <td><a>Acu Care Pain & Rehab Centre Q-bornes: 5485 6999<a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:283 0229');">
+                <td><a>Global Rainbow Foundation Rehabilitation Center - petit rafrey: 2830229</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:900300400');">
+                <td><a>Flamboyant Rehabilitation Centre - triolet: 59003004</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:900300400');">
+                <td><a>New Millennium Projects - fon du sac: 590030040</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:464 9980');">
+                <td><a>Centre de Solidarité - beau-bassin: 4649980</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:243 8387');">
+                <td><a>Les Mariannes Wellness Sanctuary -montagne long: 2438387</a></td>
+              </tr>
+
+
+              <tr onclick="window.open('tel:5708 6868');">
+                <td><a>YUVA Mauritius - port louis: 5708 6868</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:900300400');">
+                <td><a>Rehabilitation Youth Centre -beau-bassin rose-hill: 590030040</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel: 263 8041');">
+                <td><a>Grand Bay Community Health Centre - grand baie:  2638041</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:261 5689');">
+                <td><a>Pointe aux Piments Community Health Centre - pointe aux biches: 2615689</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:263 5121');">
+                <td><a>Vale Community Health Centre - vale: 2635121</a></td>
+              </tr>
+
+              <tr onclick="window.open('tel:249 3309');">
+                <td><a>Terre Rouge Health Centre: 2493309</a></td>
+              </tr>
+
+
+            </table>
+
+            <hr>
+
+            <h3 class="xy">Take this quiz to find out if you have an alcohol abuse problem</h3>
+
+            <a href = "https://www.verywellmind.com/could-you-have-an-alcohol-abuse-problem-3894213?quizResult=6817926b">Drink Assessment</a>
+
+
+          </div>
+
+          <div data-role="footer">
+            <h2 class="fcopy"><em>Copyright &copy; 2019 All Rights Reserved</em></h2>
+          </div>
+
+        </div>
+        <!-- /End of page 5-->
+
+
+        <!-- Page 6: FAQ Page -->
+
+        <div data-role="page" id="FAQPage" data-theme="a">
+
+          <div data-role="header" id="heading">
+
+            <h1>Sober O'clock</h1>
+
+            <a href="#MenuBtn" data-icon="bars" data-iconpos="notext" data-theme="b" data-incline="true" id="btnMenu">Menu</a>
+
+
+            <div data-role="panel" data-display="overlay" data-theme="b" id="MenuBtn">
+              <ul data-role="listview" data-inset="false">
+                <li>FAQ</li>
+                <li data-icon="delete"><a href="#" data-rel="close">Close menu</a></li>
+                <li><a href="#HomePage">Home</a></li>
+                <li><a href="#TrackerPage">Drink Tracker</a></li>
+                <li><a href="#MapPage">Rehabilitation Map</a></li>
+                <li><a href="#FactsPage">Facts</a></li>
+                <li><a href="#HelplinePage">Helpline</a></li>
+                <li><a href="#FAQPage">FAQ</a></li>
+              </ul>
+            </div>
+          </div>
+          <img src="Img/underage-drinking.png" alt="Underagedrinking" class="PageBanner">
+
+          <div role="main" class="ui-content">
+
+            <h2 class="xy">Frequently Asked Questions</h2>
+            <h4 class="ftitle">1. Where can you get help to stop drinking?</h4>
+            <p class="y">
+              If you are finding it difficult to stop drinking talk to your midwife, doctor, another health professional or contact the <strong><a href="#HelplinePage">helpline.</a></strong>
+            </p>
+
+            <h4 class="ftitle">2. Are all types of drinks harmful?</h4>
+            <p class="y">
+              Yes, all types of alcoholic drinks including beer, wine, cider, spirits
+            </p>
+
+            <h4 class="ftitle">3. Can a Person Overdose on Alcohol?</h4>
+            <p class="y">
+              An overdose or alcohol poisoning, occurs when alcohol reaches toxic levels in the bloodstream and begins to shut down basic life-support functions such as breathing, temperature and heart rate.
+            </p>
+
+            <h4 class="ftitle">4. What Is Alcoholism?</h4>
+            <p class="y">
+              Alcohol addiction, or alcoholism, develops as a person becomes no longer able to stop drinking despite trying to, experiences emotional distress when not drinking, and continues to drink no matter the negative ramifications.
+
+            </p>
+
+            <h4 class="ftitle">5. Is There a Cure for Alcoholism?</h4>
+            <p class="y">
+              Alcoholism is a chronic disease that can be managed with medications, therapies, and support. As with many chronic illnesses, there is no easy cure. Specialized and professional treatment can help to manage symptoms of withdrawal and minimize relapse, while support groups and aftercare programs help to promote long-term recovery.
+            </p>
+
+            <h4 class="ftitle">6. What Are the Symptoms of Alcohol Withdrawal?</h4>
+            <p class="y">
+              Alcohol withdrawal can have significant physical and emotional effects that are best managed with the supervision and support of a medical program
+            </p>
+
+
+            <h4 class="ftitle">7. What is Rehab?</h4>
+            <p class="y">
+              Rehabilitation is the term used for a structured program of various treatment interventions designed to help individuals quit using drugs or alcohol. Once you’ve acknowledged the need for change and successfully go through dmedical program, treatment is typically the next path toward sobriety. Regardless of your level of alcohol abuse, enlisting the aid of medical and mental health professionals can make your journey to a life without alcohol easier.
+              Group therapy, individual and family counseling, support group meetings, wellness activities, and medication treatments may be included as part of a comprehensive treatment plan.
+            </p>
+
+            <h4 class="ftitle">8. Can drinking alcohol affect memory or learning?</h4>
+            <p class="y">
+              The hippocampus, or the area in the brain that stores memory, is still maturing during adolescence. Research shows that ingesting even small amounts of alcohol can make teens less likely to recall something they learned earlier or remember what they did while drinking.
+            </p>
+
+            <h4 class="ftitle">9. Why Do Teens Drink?</h4>
+            <p class="y">
+              Experimentation with alcohol during the teen years is common. Some reasons that teens use alcohol and other drugs are:
+
+              curiosity
+              to feel good, reduce stress, and relax
+              to fit in
+              to feel older
+              From a very young age, kids see advertising messages showing beautiful people enjoying life — and alcohol. And because many parents and other adults use alcohol socially — having beer or wine with dinner, for example — alcohol seems harmless to many teens.
+            </p>
+          </div>
+
+          <div data-role="footer">
+            <h2 class="fcopy"><em>Copyright &copy; 2019 All Rights Reserved</em></h2>
+          </div>
+
+        </div>
+        <!-- /End of page 6-->
+
+
+
+
+
+
+        <!-- SCRIPT CODES -->
+
+        <script>
+        // 2. This code loads the IFrame Player API code asynchronously.
+        var tag = document.createElement('script');
+
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // 3. This function creates an <iframe> (and YouTube player)
+        //    after the API code downloads.
+        var player;
+        function onYouTubeIframeAPIReady() {
+          player = new YT.Player('player', {
+            height: '390',
+            width: '640',
+            videoId: 'sNFrQ6ixAnM',
+            events: {
+              'onReady': onPlayerReady,
+              'onStateChange': onPlayerStateChange
+            }
+          });
+        }
+
+        // 4. The API will call this function when the video player is ready.
+        function onPlayerReady(event) {
+          event.target.playVideo();
+        }
+
+        // 5. The API calls this function when the player's state changes.
+        //    The function indicates that when playing a video (state=1),
+        //    the player does not play on load (have to click on play button)
+        var done = false;
+        function onPlayerStateChange(event) {
+          if (event.data == YT.PlayerState.PLAYING && !done) {
+            setTimeout(stopVideo, 0000);
+            done = true;
+          }
+        }
+        function stopVideo() {
+          player.stopVideo();
+        }
+
+
+
+        // MAP CODE
+
+
+        if (navigator.geolocation == undefined) {
+          alert("Geolocation undefined");
+        } else {
+          //alert("Geolocation Available");
+          navigator.geolocation.getCurrentPosition(userLocated, locationError); // VERY IMPORTANT used to get location, may get for exam
+
+          function userLocated(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+
+            var mymap = L.map('mapid').setView([latitude, longitude], 10);
+
+            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+              maxZoom: 19,
+
+              attribution: 'Map data &copy;' +
+              '<a href="https://www.openstreetmap.org/">OpenStreetMap</a>' +
+              'contributors,<a href="https://creativecommons.org/licenses' +
+              '/by-sa/2.0/">CC-BY-SA</a>,Imagery © <a href="https://' +
+              'www.mapbox.com/">Mapbox</a>',
+
+              id: 'mapbox.streets',
+
+              accessToken: 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYyc' +
+              'XBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw'
+            }).addTo(mymap);
+
+
+            //Quatre Bornes
+            var quatreBornesMarker = L.marker([-20.268635, 57.470776]).addTo(mymap);
+
+            quatreBornesMarker.bindPopup("Acu Care Pain & Rehab Centre");
+
+            // Adding a circle on the map
+
+            var circle = L.circle([-20.268635, 57.470776], {
+              color: 'red',
+              fillColor: '#f03',
+              fillOpacity: 0.5,
+              radius: 100
+            }).addTo(mymap);
+
+
+            //rose hill
+            var roseHillMarker = L.marker([-20.225911, 57.467725]).addTo(mymap);
+
+            roseHillMarker.bindPopup("Rehabilitation Youth Centre");
+
+            // Adding a circle on the map
+
+            var circle = L.circle([-20.225911, 57.467725], {
+              color: 'red',
+              fillColor: '#f03',
+              fillOpacity: 0.5,
+              radius: 100
+            }).addTo(mymap);
+
+
+
+            //port louis
+            var portlouisMarker = L.marker([-20.164196, 57.497840]).addTo(mymap);
+
+            portlouisMarker.bindPopup("YUVA Mauritius");
+
+            // Adding a circle on the map
+
+            var circle = L.circle([-20.164196, 57.497840], {
+              color: 'red',
+              fillColor: '#f03',
+              fillOpacity: 0.5,
+              radius: 100
+            }).addTo(mymap);
+
+
+            //petit rafrey
+            var petitrafreyeMarker = L.marker([-20.022164, 57.618097]).addTo(mymap);
+
+            petitrafreyeMarker.bindPopup("Global Rainbow Foundation - Rehabilitation Center");
+
+            // Adding a circle on the map
+
+            var circle = L.circle([-20.022164, 57.618097], {
+              color: 'red',
+              fillColor: '#f03',
+              fillOpacity: 0.5,
+              radius: 100
+            }).addTo(mymap);
+
+
+            //triolet
+            var trioletMarker = L.marker([-20.079946, 57.543179]).addTo(mymap);
+
+            trioletMarker.bindPopup("Flamboyant Rehabilitation Centre");
+
+            // Adding a circle on the map
+
+            var circle = L.circle([-20.079946, 57.543179], {
+              color: 'red',
+              fillColor: '#f03',
+              fillOpacity: 0.5,
+              radius: 100
+            }).addTo(mymap);
+
+
+            //Fond du sac
+            var fonddusacMarker = L.marker([-20.047705, 57.581616]).addTo(mymap);
+
+            fonddusacMarker.bindPopup("New Millennium Projects");
+
+            // Adding a circle on the map
+
+            var circle = L.circle([-20.047705, 57.581616], {
+              color: 'red',
+              fillColor: '#f03',
+              fillOpacity: 0.5,
+              radius: 100
+            }).addTo(mymap);
+
+
+
+            //beau bassin
+            var beaubassinMarker = L.marker([-20.237201, 57.472427]).addTo(mymap);
+
+            beaubassinMarker.bindPopup("Centre de Solidarité");
+
+            // Adding a circle on the map
+
+            var circle = L.circle([-20.237201, 57.472427], {
+              color: 'red',
+              fillColor: '#f03',
+              fillOpacity: 0.5,
+              radius: 100
+            }).addTo(mymap);
+
+
+
+
+
+
+
+
+
+
+
+
+          }
+
+
+          function locationError(error) {
+            switch (error.code) {
+              case error.PERMISSION_DENIED:
+              alert("Permission Denied-" + error.message);
+              break;
+
+              case error.POSITION_UNAVAILABLE:
+              alert("Position Not Available-" + error.message);
+              break;
+
+              case error.TIMEOUT:
+              alert("Request Time out-" + error.message);
+              break
+
+            }
+          }
+        }
+      </script>
+
+
+    </body>
+    </html>

@@ -1,0 +1,61 @@
+.heading, #heading{
+  background-color:#222731;
+  color: #F05E23; /* F05E23 */
+  font-family: verdana;
+  font-size: 15px;
+}
+
+.PageBanner {
+    width: 100%;
+    height: auto;
+}
+/* aligne text center */
+.text-center {
+    text-align:center;
+    color: #F05E23;
+}
+.x{
+  margin-top: 30px;
+  color: #111e6c;
+}
+.y{
+  color: #3c3c3a;
+  font-family: Helvetica;
+  line-height: 25px;
+}
+.xy{
+  /*border: 1px solid #F05E23;*/
+  border-radius: 10px;
+  border-style: double;
+  padding: 10px;
+  color: #F05E23;
+}
+
+.ftitle{
+  color: #07889B;
+}
+
+p {
+  text-align: justify;
+}
+#btnMenu{
+  background-color: #F05E23;
+  color: white;
+  font-size: 15px;
+  font-weight: 100;
+  font-family: verdana;
+  border: 0;
+  outline: 0;
+}
+.text-danger{
+  color: Red;
+}
+
+
+.fcopy{
+  color: #F05E23;
+}
+
+td{
+  font-size: 12px;
+}
